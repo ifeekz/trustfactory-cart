@@ -2,6 +2,8 @@
 
 A simple e-commerce shopping cart application built with **Laravel, React (Breeze)**, and **Tailwind CSS**.
 
+The project demonstrates clean architecture, service-driven business logic, background jobs, and automated tests.
+
 Users can browse products, manage a shopping cart, and place orders. Background jobs handle low-stock notifications and daily sales reports.
 
 ## Tech Stack
@@ -172,6 +174,70 @@ This approach ensures **data consistency** and prevents partial checkouts.
     ```
 - Sends an email to the configured admin address
 
+## Daily Sales Report
+
+The application includes a scheduled background task that sends a daily sales report to the admin email address.
+
+**Overview**
+
+- Runs automatically every evening
+- Aggregates all products sold during the day
+- Sends a summary email to the configured admin user
+- Implemented using Laravel’s Task Scheduling system
+
+**Implementation**
+
+```php
+app/Console/Commands/SendDailySalesReport.php
+```
+
+The command:
+
+- Queries all OrderItem records created on the current day
+- Groups results by product
+- Calculates total quantity sold per product
+- Sends a summary email only if sales occurred
+
+Command signature:
+
+```bash
+php artisan app:send-daily-sales-report
+```
+
+**Scheduler**
+
+The command is registered in Laravel’s scheduler and runs daily at **18:00**:
+
+```php
+$schedule->command(SendDailySalesReport::class)
+    ->dailyAt('18:00');
+```
+
+
+In production, Laravel’s scheduler should be triggered via cron:
+
+```bash
+* * * * * cd /path/to/app && php artisan schedule:run >> /dev/null 2>&1
+```
+
+For local development, the scheduler can be run manually:
+
+```bash
+php artisan schedule:work
+```
+
+Emails are sent to the admin address configured via environment variables:
+
+```env
+SHOP_ADMIN_EMAIL=admin@trustfactory.test
+```
+
+For local development, emails are logged to:
+
+```bash
+storage/logs/laravel.log
+```
+
 ## Testing
 
 The application includes both **unit tests** and **feature tests** to validate business logic and end-to-end cart behavior.
@@ -241,12 +307,26 @@ Covered scenarios:
 - Verifying cart cleanup and stock updates
 - Dispatching low-stock notification jobs during cart operations
 
-Feature tests:
+### Feature Tests – Daily Sales Report
 
-- Use real API routes
-- Authenticate users using Laravel’s auth system
-- Assert HTTP status codes, JSON responses, and database state
-- Ensure consistent API behavior regardless of internal persistence details
+The daily sales report functionality is covered by a feature test:
+
+**Location**
+
+```php
+tests/Feature/Reports/DailySalesReportTest.php
+```
+
+The test verifies:
+
+- Orders and order items created during the day are included
+- The report command sends an email when sales exist
+
+Tests can be run with:
+
+```bash
+php artisan test tests/Feature/Reports
+```
 
 ### Running Tests
 
@@ -287,3 +367,5 @@ This layered approach ensures confidence in both core logic and end-to-end behav
 Author
 
 Built by [Nnorom Ifeanyi Paul](https://github.com/ifeekz) as part of the Trustfactory Laravel Developer assessment.
+
+<!-- React cart UI wiring (products + cart pages) -->
