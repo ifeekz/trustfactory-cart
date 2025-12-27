@@ -6,13 +6,12 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-});
+    return Inertia::render('Products/Index');
+})->name('products');
+
+Route::get( '/cart', function() {
+    return Inertia::render('Cart/Show');
+})->name('cart');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');

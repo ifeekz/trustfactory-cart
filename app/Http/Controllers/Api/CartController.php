@@ -17,46 +17,95 @@ class CartController extends Controller
 
     public function show(Request $request)
     {
-        $cart = $this->cartService->getCart($request->user());
+        if ($request->user()) {
+            return response()->json(
+                $this->cartService->getCart($request->user())
+            );
+        }
 
-        return response()->json($cart);
+        $items = session('cart.items', []);
+
+        return response()->json([
+            'items' => collect($items)->map(function ($quantity, $productId) {
+                return [
+                    'product_id' => (int) $productId,
+                    'quantity' => $quantity,
+                ];
+            })->values(),
+        ]);
     }
+
 
     public function store(AddToCartRequest $request)
     {
         $product = Product::findOrFail($request->product_id);
 
-        $this->cartService->addProduct(
-            $request->user(),
-            $product,
-            $request->quantity
-        );
+        if ($request->user()) {
+            $this->cartService->addProduct(
+                $request->user(),
+                $product,
+                $request->quantity
+            );
+
+            return response()->noContent();
+        }
+
+        // Guest cart (session-based)
+        $cart = session()->get('cart.items', []);
+
+        $cart[$product->id] = ($cart[$product->id] ?? 0) + $request->quantity;
+
+        session()->put('cart.items', $cart);
 
         return response()->noContent();
     }
 
-    public function update(
-        UpdateCartItemRequest $request,
-        Product $product
-    ) {
-        $this->cartService->updateProductQuantity(
-            $request->user(),
-            $product,
-            $request->quantity
-        );
+
+    public function update(UpdateCartItemRequest $request, Product $product)
+    {
+        if ($request->user()) {
+            $this->cartService->updateProductQuantity(
+                $request->user(),
+                $product,
+                $request->quantity
+            );
+
+            return response()->noContent();
+        }
+
+        $cart = session()->get('cart.items', []);
+
+        if ($request->quantity <= 0) {
+            unset($cart[$product->id]);
+        } else {
+            $cart[$product->id] = $request->quantity;
+        }
+
+        session()->put('cart.items', $cart);
 
         return response()->noContent();
     }
+
 
     public function destroy(Request $request, Product $product)
     {
-        $this->cartService->removeProduct(
-            $request->user(),
-            $product
-        );
+        if ($request->user()) {
+            $this->cartService->removeProduct(
+                $request->user(),
+                $product
+            );
+
+            return response()->noContent();
+        }
+
+        $cart = session()->get('cart.items', []);
+        unset($cart[$product->id]);
+
+        session()->put('cart.items', $cart);
 
         return response()->noContent();
     }
+
 
     public function checkout(Request $request)
     {
