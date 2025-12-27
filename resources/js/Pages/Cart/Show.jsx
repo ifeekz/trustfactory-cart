@@ -1,4 +1,8 @@
 import { useEffect, useState } from "react";
+
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
+import { Head } from "@inertiajs/react";
+
 import {
     fetchCart,
     updateCartItem,
@@ -6,76 +10,117 @@ import {
     checkout,
 } from "@/Services/cartService";
 
-export default function Cart() {
+export default function Cart({ auth }) {
     const [cart, setCart] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     const loadCart = async () => {
         const res = await fetchCart();
         setCart(res.data);
     };
 
+    const refreshCart = async () => {
+        await loadCart();
+        window.dispatchEvent(new Event("cart-updated"));
+    };
+
     useEffect(() => {
         loadCart();
     }, []);
 
-    if (!cart) return null;
+    if (!cart) {
+        return (
+            <AuthenticatedLayout user={auth?.user}>
+                <div className="max-w-4xl mx-auto p-6">
+                    <p>Loading cart…</p>
+                </div>
+            </AuthenticatedLayout>
+        );
+    }
+
+    const handleQuantityChange = async (productId, quantity) => {
+        setLoading(true);
+
+        await updateCartItem(productId, quantity);
+        await refreshCart();
+
+        setLoading(false);
+    };
+
+    const handleRemove = async (productId) => {
+        setLoading(true);
+
+        await removeCartItem(productId);
+        await refreshCart();
+
+        setLoading(false);
+    };
 
     const handleCheckout = async () => {
+        setLoading(true);
+
         await checkout();
-        alert("Order placed");
-        loadCart();
+        await refreshCart();
+
+        setLoading(false);
+        alert("Order placed successfully");
     };
 
     return (
-        <div className="max-w-4xl mx-auto p-6">
-            <h1 className="text-2xl font-semibold mb-4">Your Cart</h1>
+        <AuthenticatedLayout user={auth?.user}>
+            <Head title="Cart" />
 
-            {cart.items.length === 0 && <p>Your cart is empty.</p>}
+            <div className="max-w-4xl mx-auto p-6">
+                <h1 className="text-2xl font-semibold mb-4">Your Cart</h1>
 
-            {cart.items.map((item) => (
-                <div
-                    key={item.id}
-                    className="flex justify-between items-center mb-3"
-                >
-                    <div>
-                        <p>{item.product.name}</p>
-                        <p className="text-sm text-gray-500">
-                            ${(item.product.price / 100).toFixed(2)}
-                        </p>
-                    </div>
+                {cart.items.length === 0 && <p>Your cart is empty.</p>}
 
-                    <input
-                        type="number"
-                        min="0"
-                        value={item.quantity}
-                        onChange={(e) =>
-                            updateCartItem(
-                                item.product.id,
-                                Number(e.target.value)
-                            ).then(loadCart)
-                        }
-                        className="w-16 border rounded px-2"
-                    />
-
-                    <button
-                        onClick={() =>
-                            removeCartItem(item.product.id).then(loadCart)
-                        }
-                        className="text-red-600"
+                {cart.items.map((item) => (
+                    <div
+                        key={item.product_id}
+                        className="flex justify-between items-center mb-4"
                     >
-                        Remove
-                    </button>
-                </div>
-            ))}
+                        <div>
+                            <p className="font-medium">{item.product.name}</p>
+                            <p className="text-sm text-gray-500">
+                                ${(item.product.price / 100).toFixed(2)}
+                            </p>
+                        </div>
 
-            {cart.items.length > 0 && (
-                <button
-                    onClick={handleCheckout}
-                    className="mt-4 bg-green-600 text-white px-4 py-2 rounded"
-                >
-                    Checkout
-                </button>
-            )}
-        </div>
+                        <input
+                            type="number"
+                            min="0"
+                            value={item.quantity}
+                            disabled={loading}
+                            onChange={(e) =>
+                                handleQuantityChange(
+                                    item.product_id,
+                                    Number(e.target.value)
+                                )
+                            }
+                            className="w-16 border rounded px-2 py-1"
+                        />
+
+                        <button
+                            disabled={loading}
+                            onClick={() => handleRemove(item.product_id)}
+                            className="text-red-600"
+                        >
+                            Remove
+                        </button>
+                    </div>
+                ))}
+
+                {cart.items.length > 0 && (
+                    <button
+                        disabled={loading}
+                        onClick={handleCheckout}
+                        className="mt-6 bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50"
+                    >
+                        Checkout
+                    </button>
+                )}
+            </div>
+        </AuthenticatedLayout>
     );
 }

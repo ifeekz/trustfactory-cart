@@ -18,22 +18,38 @@ class CartController extends Controller
     public function show(Request $request)
     {
         if ($request->user()) {
-            return response()->json(
-                $this->cartService->getCart($request->user())
-            );
+            $cart = $this->cartService->getCart($request->user());
+
+            return response()->json([
+                'items' => $cart->items->map(fn($item) => [
+                    'product_id' => $item->product_id,
+                    'quantity' => $item->quantity,
+                    'product' => [
+                        'id' => $item->product->id,
+                        'name' => $item->product->name,
+                        'price' => $item->product->price,
+                    ],
+                ]),
+            ]);
         }
 
         $items = session('cart.items', []);
 
+        $products = \App\Models\Product::whereIn(
+            'id',
+            array_keys($items)
+        )->get()->keyBy('id');
+
         return response()->json([
-            'items' => collect($items)->map(function ($quantity, $productId) {
-                return [
-                    'product_id' => (int) $productId,
-                    'quantity' => $quantity,
-                ];
-            })->values(),
+            'items' => collect($items)->map(fn($qty, $productId) => [
+                'product_id' => (int) $productId,
+                'quantity' => $qty,
+                'product' => $products[$productId] ?? null,
+            ])->values(),
         ]);
     }
+
+
 
 
     public function store(AddToCartRequest $request)

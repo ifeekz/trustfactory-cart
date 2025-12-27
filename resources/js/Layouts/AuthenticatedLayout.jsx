@@ -14,18 +14,26 @@ export default function AuthenticatedLayout({ header, children }) {
         useState(false);
     const [cartCount, setCartCount] = useState(0);
 
-    useEffect(() => {
+    const fetchCartCount = () => {
         axios
-            .get("/api/cart")
+            .get("/cart-data")
             .then((res) => {
-                const items = res.data.items ?? [];
-                const count = items.reduce(
-                    (sum, item) => sum + item.quantity,
-                    0
-                );
+                console.log(res);
+                const items = res.data.items || [];
+                const count = items.reduce((sum, i) => sum + i.quantity, 0);
                 setCartCount(count);
             })
             .catch(() => setCartCount(0));
+    };
+
+    useEffect(() => {
+        fetchCartCount();
+
+        window.addEventListener("cart-updated", fetchCartCount);
+
+        return () => {
+            window.removeEventListener("cart-updated", fetchCartCount);
+        };
     }, []);
 
     return (
