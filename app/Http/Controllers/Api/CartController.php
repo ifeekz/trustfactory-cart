@@ -17,7 +17,9 @@ class CartController extends Controller
 
     public function show(Request $request)
     {
-        return $this->cartService->getCart($request->user());
+        $cart = $this->cartService->getCart($request->user());
+
+        return response()->json($cart);
     }
 
     public function store(AddToCartRequest $request)

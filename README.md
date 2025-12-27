@@ -172,11 +172,111 @@ This approach ensures **data consistency** and prevents partial checkouts.
     ```
 - Sends an email to the configured admin address
 
-**Testing**
+## Testing
 
-- Business logic is isolated in services and jobs
-- Cart behavior can be tested without controllers
-- Queue and mail can be faked in tests
+The application includes both **unit tests** and **feature tests** to validate business logic and end-to-end cart behavior.
+
+### Test Structure
+
+```bash
+tests/
+├── Unit/
+│   └── Services/
+│       └── CartServiceTest.php
+│
+├── Feature/
+│   └── Services/
+│       └── CartFlowTest.php
+
+```
+
+### Unit Tests – CartService
+
+**Location**
+
+```php
+tests/Unit/Services/CartServiceTest.php
+```
+
+These tests focus on **domain-level business logic** implemented in `CartService`, independent of HTTP controllers.
+
+Covered scenarios:
+
+- Creating and retrieving a user cart
+- Adding products to the cart
+- Incrementing product quantities
+- Preventing additions beyond available stock
+- Updating quantities (including removing items when quantity is zero)
+- Checkout flow:
+    - Order creation
+    - Order item persistence
+    - Stock decrement
+    - Cart cleanup
+- Dispatching low-stock notification jobs
+
+These tests use:
+
+- `RefreshDatabase` for isolation
+- Queue fakes for job assertions
+- Direct service invocation for fast, focused feedback
+
+### Feature Tests – Cart Flow
+
+**Location**
+
+```php
+tests/Feature/Services/CartFlowTest.php
+```
+
+These tests validate the **full cart flow through the API**, including authentication and HTTP responses.
+
+Covered scenarios:
+
+- Viewing an empty cart
+- Adding products to the cart
+- Updating cart item quantities
+- Removing items from the cart
+- Preventing invalid stock operations
+- Completing checkout
+- Verifying cart cleanup and stock updates
+- Dispatching low-stock notification jobs during cart operations
+
+Feature tests:
+
+- Use real API routes
+- Authenticate users using Laravel’s auth system
+- Assert HTTP status codes, JSON responses, and database state
+- Ensure consistent API behavior regardless of internal persistence details
+
+### Running Tests
+
+Run all tests:
+
+```php
+php artisan test
+```
+
+Run only CartService unit tests:
+
+```php
+php artisan test tests/Unit/Services
+```
+
+Run only cart flow feature tests:
+
+```php
+php artisan test tests/Feature/Services
+```
+
+Testing Philosophy
+
+- Business logic lives in services, not controllers
+- Unit tests validate domain rules
+- Feature tests validate real user flows
+<!-- - No UI or frontend coupling in tests -->
+- Tests are deterministic, isolated, and fast
+
+This layered approach ensures confidence in both core logic and end-to-end behavior while keeping the codebase maintainable.
 
 **Notes**
 
