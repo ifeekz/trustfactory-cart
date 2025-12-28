@@ -30,7 +30,7 @@ Users can browse products, manage a shopping cart, and place orders. Background 
 ## Features
 - User authentication
 - Product listing with pagination
-- Guest shopping cart (session-based)
+- Guest shopping cart (session-based, pre-authentication only)
 - User-specific shopping cart (persistent)
 - Guest → user cart merge on login
 - Add, update, and remove cart items
@@ -155,6 +155,14 @@ app/Services/CartService.php
 - Improves testability
 - Avoids duplication
 - Makes future changes safer
+
+### Cart Persistence Strategy
+
+For authenticated users, all cart operations are persisted in the database and scoped to the user.  
+This ensures cart state is durable, consistent, and independent of sessions or frontend storage.
+
+Guest users may build a temporary cart stored in the server-side session. Upon login, this
+session cart is merged into the authenticated user’s cart and then cleared. All subsequent cart operations occur against the database-backed cart.
 
 ### Guest → User Cart Flow
 
