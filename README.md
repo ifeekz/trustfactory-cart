@@ -6,6 +6,15 @@ The project demonstrates clean architecture, service-driven business logic, back
 
 Users can browse products, manage a shopping cart, and place orders. Background jobs handle low-stock notifications and daily sales reports.
 
+## Table of Contents
+
+- [Tech Stack](#tech-stack)
+- [Features](#features)
+- [Setup Instructions](#setup-instructions)
+- [Cart Service Implementation](#cart-service-implementation)
+- [Daily Sales Report](#daily-sales-report)
+- [Tests](#testing)
+
 ## Tech Stack
 
 - **Backend**: Laravel
@@ -20,8 +29,10 @@ Users can browse products, manage a shopping cart, and place orders. Background 
 
 ## Features
 - User authentication
-- Product listing
-- User-specific shopping cart
+- Product listing with pagination
+- Guest shopping cart (session-based)
+- User-specific shopping cart (persistent)
+- Guest → user cart merge on login
 - Add, update, and remove cart items
 - Checkout flow with stock validation
 - Low stock email notifications (queued)
@@ -136,8 +147,7 @@ app/Services/CartService.php
 - Persist orders and order items
 - Clear cart after checkout
 
-**Why a Service Layer?
-**
+**Why a Service Layer?**
 - Keeps controllers thin and readable
 - Centralizes business logic
 - Improves testability
@@ -355,8 +365,6 @@ This layered approach ensures confidence in both core logic and end-to-end behav
 - Each user has exactly one cart
 - All cart data is persisted per authenticated user (no session or local storage)
 
-Author
+## Author
 
 Built by [Nnorom Ifeanyi Paul](https://github.com/ifeekz) as part of the Trustfactory Laravel Developer assessment.
-
-<!-- React cart UI wiring (products + cart pages) -->
