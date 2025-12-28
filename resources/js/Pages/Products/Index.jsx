@@ -6,6 +6,8 @@ import { Head } from "@inertiajs/react";
 import { fetchProducts } from "@/Services/productService";
 import { addToCart } from "@/Services/cartService";
 
+import ProductItem from "@/Components/Products/ProductItem";
+
 export default function Products({ auth }) {
     const [products, setProducts] = useState([]);
     const [page, setPage] = useState(1);
@@ -39,21 +41,11 @@ export default function Products({ auth }) {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {products.map((product) => (
-                        <div key={product.id} className="border rounded p-4">
-                            <h2 className="font-medium">{product.name}</h2>
-                            <p>${(product.price / 100).toFixed(2)}</p>
-                            <p className="text-sm text-gray-500">
-                                Stock: {product.stock_quantity}
-                            </p>
-
-                            <button
-                                onClick={() => handleAdd(product.id)}
-                                className={"mt-2 bg-black text-white px-3 py-1 rounded" + (product.stock_quantity === 0 ? " opacity-50 cursor-not-allowed" : "")}
-                                disabled={product.stock_quantity === 0}
-                            >
-                                Add to cart
-                            </button>
-                        </div>
+                        <ProductItem
+                            key={product.id}
+                            product={product}
+                            onAdd={handleAdd}
+                        />
                     ))}
                 </div>
 
