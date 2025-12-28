@@ -48,7 +48,7 @@ export default function Products({ auth }) {
 
                             <button
                                 onClick={() => handleAdd(product.id)}
-                                className="mt-2 bg-black text-white px-3 py-1 rounded"
+                                className={"mt-2 bg-black text-white px-3 py-1 rounded" + (product.stock_quantity === 0 ? " opacity-50 cursor-not-allowed" : "")}
                                 disabled={product.stock_quantity === 0}
                             >
                                 Add to cart
