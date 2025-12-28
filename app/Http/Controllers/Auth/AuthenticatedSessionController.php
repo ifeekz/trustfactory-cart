@@ -33,6 +33,12 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
+        $redirect = request()->input('redirect');
+
+        if ($redirect && str_starts_with($redirect, '/')) {
+            return redirect($redirect);
+        }
+
         return redirect()->intended(route('dashboard', absolute: false));
     }
 

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head } from "@inertiajs/react";
+import { router } from "@inertiajs/react";
 
 import {
     fetchCart,
@@ -57,14 +58,21 @@ export default function Cart({ auth }) {
     };
 
     const handleCheckout = async () => {
+        if (!auth?.user) {
+            router.get("/login", { redirect: "/cart" });
+            return;
+        }
+
         setLoading(true);
 
         await checkout();
+
         await refreshCart();
 
         setLoading(false);
-        alert("Order placed successfully");
+        // alert("Order placed successfully");
     };
+
 
     return (
         <AuthenticatedLayout user={auth?.user}>

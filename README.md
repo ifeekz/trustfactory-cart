@@ -144,6 +144,30 @@ app/Services/CartService.php
 - Avoids duplication
 - Makes future changes safer
 
+### Guest → User Cart Flow
+
+Guests can freely build a cart using a **session-based cart**.
+Checkout is **restricted to authenticated users**.
+
+When a guest logs in:
+
+1. The login process regenerates the session for security.
+2. A login event listener merges the guest’s session cart into the user’s persistent cart.
+3. Session cart data is cleared.
+4. The user proceeds with checkout using the database-backed cart.
+
+This ensures:
+
+- No cart data is lost during login
+- Session fixation protection remains intact
+- All checkout logic operates on a single, consistent cart source
+
+The merge logic is implemented in an authentication listener:
+
+```php
+app/Listeners/MergeGuestCartOnLogin.php
+```
+
 **Key Methods**
 
 ```php
@@ -154,8 +178,9 @@ removeProduct(User $user, Product $product): void
 checkout(User $user): Order
 ```
 
-**Checkout Flow**
+### Checkout Flow
 
+- Requires an authenticated user
 - Runs inside a database transaction
 - Verifies stock for each item
 - Creates an order and order items
@@ -165,7 +190,7 @@ checkout(User $user): Order
 
 This approach ensures **data consistency** and prevents partial checkouts.
 
-**Low Stock Notification**
+### Low Stock Notification
 
 - Triggered when a product’s remaining stock drops below a configurable threshold
 - Implemented as a queued job:
