@@ -326,6 +326,8 @@ tests/
 - Ensures session cart data is cleared after the merge
 - Confirms the merged cart persists correctly for checkout
 
+> Checkout concurrency is covered by a feature test ensuring only one user can purchase the last available item.
+
 **Daily Sales Report**
 
 - Orders and order items created during the day are included

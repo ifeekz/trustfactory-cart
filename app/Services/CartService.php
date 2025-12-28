@@ -82,20 +82,29 @@ class CartService
             ]);
 
             foreach ($cart->items as $item) {
-                $this->ensureStockAvailable($item->product, $item->quantity);
+                // Lock product row
+                $product = Product::where('id', $item->product_id)
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($item->quantity > $product->stock_quantity) {
+                    throw ValidationException::withMessages([
+                        'stock' => "{$product->name} does not have enough stock.",
+                    ]);
+                }
 
                 OrderItem::create([
                     'order_id' => $order->id,
-                    'product_id' => $item->product_id,
-                    'price' => $item->product->price,
+                    'product_id' => $product->id,
+                    'price' => $product->price,
                     'quantity' => $item->quantity,
                 ]);
 
-                $item->product->decrement('stock_quantity', $item->quantity);
+                $product->decrement('stock_quantity', $item->quantity);
 
                 $this->notifyIfLowStock(
-                    $item->product,
-                    $item->product->stock_quantity
+                    $product,
+                    $product->stock_quantity
                 );
             }
 
@@ -104,6 +113,7 @@ class CartService
             return $order;
         });
     }
+
 
     private function ensureStockAvailable(Product $product, int $quantity): void
     {
