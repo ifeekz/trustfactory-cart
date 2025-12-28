@@ -29,16 +29,6 @@ export default function Cart({ auth }) {
         loadCart();
     }, []);
 
-    if (!cart) {
-        return (
-            <AuthenticatedLayout user={auth?.user}>
-                <div className="max-w-4xl mx-auto p-6">
-                    <p>Loading cart…</p>
-                </div>
-            </AuthenticatedLayout>
-        );
-    }
-
     const handleQuantityChange = async (productId, quantity) => {
         setLoading(true);
 
@@ -89,6 +79,15 @@ export default function Cart({ auth }) {
         // alert("Order placed successfully");
     };
 
+    if (!cart) {
+        return (
+            <AuthenticatedLayout user={auth?.user}>
+                <div className="max-w-4xl mx-auto p-6">
+                    <p>Loading cart…</p>
+                </div>
+            </AuthenticatedLayout>
+        );
+    }
 
     return (
         <AuthenticatedLayout user={auth?.user}>
@@ -100,39 +99,13 @@ export default function Cart({ auth }) {
                 {cart.items.length === 0 && <p>Your cart is empty.</p>}
 
                 {cart.items.map((item) => (
-                    <div
+                    <CartItem
                         key={item.product_id}
-                        className="flex justify-between items-center mb-4"
-                    >
-                        <div>
-                            <p className="font-medium">{item.product.name}</p>
-                            <p className="text-sm text-gray-500">
-                                ${(item.product.price / 100).toFixed(2)}
-                            </p>
-                        </div>
-
-                        <input
-                            type="number"
-                            min="0"
-                            value={item.quantity}
-                            disabled={loading}
-                            onChange={(e) =>
-                                handleQuantityChange(
-                                    item.product_id,
-                                    Number(e.target.value)
-                                )
-                            }
-                            className="w-16 border rounded px-2 py-1"
-                        />
-
-                        <button
-                            disabled={loading}
-                            onClick={() => handleRemove(item.product_id)}
-                            className="text-red-600"
-                        >
-                            Remove
-                        </button>
-                    </div>
+                        item={item}
+                        loading={loading}
+                        onQuantityChange={handleQuantityChange}
+                        onRemove={handleRemove}
+                    />
                 ))}
 
                 {cart.items.length > 0 && (
