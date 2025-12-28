@@ -125,7 +125,9 @@ Users can browse products, manage a shopping cart, and place orders. Background 
     php artisan schedule:work
     ```
 
-8. Access the application at http://localhost:8000
+8. Access the application at `http://localhost:8080` or setup a virtual host for Apache or Nginx (preferably) to serve the app on url like `http://trustfactory.test`.
+
+See [vhost.md](./vhost.md) for more details on setting up a virtual host.
 
 ## Cart Service Implementation
 
