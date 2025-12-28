@@ -276,34 +276,40 @@ tests/
 │       └── CartServiceTest.php
 │
 ├── Feature/
-│   └── Services/
-│       └── CartFlowTest.php
-
+│   └── Cart/
+│       ├── CartFlowTest.php
+│       └── GuestCartFlowTest.php
+│   └── Reports/
+│       └── DailySalesReportTest.php
 ```
 
-### Unit Tests – CartService
+### Unit Tests
 
-**Location**
+**CartService**
 
-```php
-tests/Unit/Services/CartServiceTest.php
-```
+- Adding products to cart
+- Updating quantities
+- Removing products
+- Checkout behavior and stock validation
 
-These tests focus on **domain-level business logic** implemented in `CartService`, independent of HTTP controllers.
+### Feature Tests
 
-Covered scenarios:
+**Cart Flow**
 
-- Creating and retrieving a user cart
-- Adding products to the cart
-- Incrementing product quantities
-- Preventing additions beyond available stock
-- Updating quantities (including removing items when quantity is zero)
-- Checkout flow:
-    - Order creation
-    - Order item persistence
-    - Stock decrement
-    - Cart cleanup
-- Dispatching low-stock notification jobs
+- Viewing cart
+- Adding and removing items
+- Updating quantities
+
+**Guest → Authenticated Cart Merge**
+
+- Verifies that a guest cart stored in the session is merged into the authenticated user’s cart upon login
+- Ensures session cart data is cleared after the merge
+- Confirms the merged cart persists correctly for checkout
+
+**Daily Sales Report**
+
+- Orders and order items created during the day are included
+- The report command sends an email when sales exist
 
 These tests use:
 
@@ -311,47 +317,7 @@ These tests use:
 - Queue fakes for job assertions
 - Direct service invocation for fast, focused feedback
 
-### Feature Tests – Cart Flow
-
-**Location**
-
-```php
-tests/Feature/Services/CartFlowTest.php
-```
-
-These tests validate the **full cart flow through the API**, including authentication and HTTP responses.
-
-Covered scenarios:
-
-- Viewing an empty cart
-- Adding products to the cart
-- Updating cart item quantities
-- Removing items from the cart
-- Preventing invalid stock operations
-- Completing checkout
-- Verifying cart cleanup and stock updates
-- Dispatching low-stock notification jobs during cart operations
-
-### Feature Tests – Daily Sales Report
-
-The daily sales report functionality is covered by a feature test:
-
-**Location**
-
-```php
-tests/Feature/Reports/DailySalesReportTest.php
-```
-
-The test verifies:
-
-- Orders and order items created during the day are included
-- The report command sends an email when sales exist
-
-Tests can be run with:
-
-```bash
-php artisan test tests/Feature/Reports
-```
+The tests coverage ensure that critical cart behavior works correctly across both **guest and authenticated** user flows and protect against regressions in session handling, authentication, and checkout logic.
 
 ### Running Tests
 
