@@ -18,7 +18,6 @@ export default function AuthenticatedLayout({ header, children }) {
         axios
             .get("/cart-data")
             .then((res) => {
-                console.log(res);
                 const items = res.data.items || [];
                 const count = items.reduce((sum, i) => sum + i.quantity, 0);
                 setCartCount(count);

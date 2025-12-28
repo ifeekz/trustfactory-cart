@@ -42,11 +42,27 @@ export default function Cart({ auth }) {
     const handleQuantityChange = async (productId, quantity) => {
         setLoading(true);
 
-        await updateCartItem(productId, quantity);
-        await refreshCart();
+        try {
+            await updateCartItem(productId, quantity);
+            await refreshCart();
+        } catch (error) {
+            if (error.response?.status === 422) {
+                const message =
+                    error.response.data?.errors?.quantity?.[0] ||
+                    error.response.data?.message ||
+                    "Invalid quantity.";
 
-        setLoading(false);
+                alert(message);
+
+                await loadCart();
+            } else {
+                alert("Something went wrong. Please try again.");
+            }
+        } finally {
+            setLoading(false);
+        }
     };
+
 
     const handleRemove = async (productId) => {
         setLoading(true);
