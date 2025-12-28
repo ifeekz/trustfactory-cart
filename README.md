@@ -11,7 +11,7 @@ Users can browse products, manage a shopping cart, and place orders. Background 
 - [Tech Stack](#tech-stack)
 - [Features](#features)
 - [Setup Instructions](#setup-instructions)
-- [Cart Service Implementation](#cart-service-implementation)
+- [Cart Management Implementation](#cart-management-implementation)
 - [Daily Sales Report](#daily-sales-report)
 - [Tests](#testing)
 
@@ -129,7 +129,7 @@ Users can browse products, manage a shopping cart, and place orders. Background 
 
 See [vhost.md](./vhost.md) for more details on setting up a virtual host.
 
-## Cart Service Implementation
+## Cart Management Implementation
 
 All cart-related business logic lives in a dedicated service class:
 
