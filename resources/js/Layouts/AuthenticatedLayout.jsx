@@ -16,7 +16,7 @@ export default function AuthenticatedLayout({ header, children }) {
 
     const fetchCartCount = () => {
         axios
-            .get("/cart-data")
+            .get("/cart")
             .then((res) => {
                 const items = res.data.items || [];
                 const count = items.reduce((sum, i) => sum + i.quantity, 0);
@@ -57,8 +57,8 @@ export default function AuthenticatedLayout({ header, children }) {
                                 </NavLink>
 
                                 <NavLink
-                                    href="/cart"
-                                    active={route().current("cart")}
+                                    href="/my-cart"
+                                    active={route().current("my-cart")}
                                 >
                                     <span className="relative inline-flex items-center">
                                         Cart

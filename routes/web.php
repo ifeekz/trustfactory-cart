@@ -9,14 +9,14 @@ Route::get('/', function () {
     return Inertia::render('Products/Index');
 })->name('products');
 
-Route::get( '/cart', function() {
+Route::get('/my-cart', function () {
     return Inertia::render('Cart/Show');
-})->name('cart');
+})->name('my-cart');
 
-Route::get('/cart-data', [CartController::class, 'show']);
-Route::post('/cart-data/items', [CartController::class, 'store']);
-Route::patch('/cart-data/items/{product}', [CartController::class, 'update']);
-Route::delete('/cart-data/items/{product}', [CartController::class, 'destroy']);
+Route::get('/cart', [CartController::class, 'show']);
+Route::post('/cart/items', [CartController::class, 'store']);
+Route::patch('/cart/items/{product}', [CartController::class, 'update']);
+Route::delete('/cart/items/{product}', [CartController::class, 'destroy']);
 
 Route::middleware('auth')->group(function () {
     Route::post('/cart/checkout', [CartController::class, 'checkout']);
@@ -32,4 +32,4 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

@@ -18,7 +18,7 @@ class GuestCartMergeTest extends TestCase
         ]);
 
         // Guest adds product to cart (session-based)
-        $this->post('/cart-data/items', [
+        $this->post('/cart/items', [
             'product_id' => $product->id,
             'quantity' => 2,
         ])->assertNoContent();
@@ -43,7 +43,7 @@ class GuestCartMergeTest extends TestCase
         // Assert: cart exists for user with merged item
         $this->actingAs($user);
 
-        $response = $this->get('/cart-data')
+        $response = $this->get('/cart')
             ->assertOk()
             ->json();
 
