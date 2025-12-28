@@ -4,6 +4,9 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head } from "@inertiajs/react";
 import { router } from "@inertiajs/react";
 
+import CartItem from "@/Components/Cart/CartItem";
+import CartSummary from "@/Components/Cart/CartSummary";
+
 import {
     fetchCart,
     updateCartItem,
@@ -109,13 +112,11 @@ export default function Cart({ auth }) {
                 ))}
 
                 {cart.items.length > 0 && (
-                    <button
-                        disabled={loading}
-                        onClick={handleCheckout}
-                        className="mt-6 bg-green-600 text-white px-4 py-2 rounded disabled:opacity-50"
-                    >
-                        Checkout
-                    </button>
+                    <CartSummary
+                        items={cart.items}
+                        loading={loading}
+                        onCheckout={handleCheckout}
+                    />
                 )}
             </div>
         </AuthenticatedLayout>
