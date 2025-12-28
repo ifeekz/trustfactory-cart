@@ -9,11 +9,11 @@ export default function Dashboard({ orders }) {
         <AuthenticatedLayout
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    My Recent Orders
+                    My Orders
                 </h2>
             }
         >
-            <Head title="Recent orders" />
+            <Head title="My orders" />
 
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
